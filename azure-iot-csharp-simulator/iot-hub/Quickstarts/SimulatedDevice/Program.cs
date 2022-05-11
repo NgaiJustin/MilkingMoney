@@ -11,6 +11,11 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Globalization;
+using System.Collections.Generic;
+
+using System.IO;
+using CsvHelper;
 
 namespace SimulatedDevice
 {
@@ -95,6 +100,52 @@ namespace SimulatedDevice
         // Async method to send simulated telemetry
         private static async Task SendDeviceToCloudMessagesAsync(CancellationToken ct)
         {
+            // Load CSV files
+            using (var reader = new StreamReader("./data/farm1.csv"))
+            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+            {
+                var records = new List<SensorData>();
+                csv.Read();
+                csv.ReadHeader();
+                while (csv.Read())
+                {
+                    var record = new SensorData
+                    {
+                        datesql = csv.GetField("datesql"),
+                        Animal_ID = csv.GetField<int>("Animal_ID"),
+                        Group_ID = csv.GetField<int>("Group_ID"),
+                        Lactation_Num = csv.GetField<int>("Lactation_Num"),
+                        DIM = csv.GetField<int>("DIM"),
+                        AnimalStatus = csv.GetField<string>("AnimalStatus"),
+                        Gynecology_Status = csv.GetField<string>("Gynecology_Status"),
+                        Yield = csv.GetField<float>("Yield(gr)"),
+                        ProdRate = csv.GetField<float>("ProdRate(gr/hr)"),
+                        Fat = csv.GetField<float>("Fat(%)"),
+                        Avg_Fat = csv.GetField<float>("Avg_Fat(%)"),
+                        Protein = csv.GetField<float>("Protein(%)"),
+                        Avg_Protein = csv.GetField<float>("Avg_Protein(%)"),
+                        Lactose = csv.GetField<float>("Lactose"),
+                        Avg_Lactose = csv.GetField<float>("Avg_Lactose(%)"),
+                        Conductivity = csv.GetField<float>("Conductivity"),
+                        Avg_Conductivity = csv.GetField<float>("Avg_Conductivity"),
+                        Milking_Time = csv.GetField<float>("Milking_Time(seconds)"),
+                        Avg_Milking_Time = csv.GetField<float>("Avg_Milking_Time(seconds)"),
+                        Activity = csv.GetField<float>("Activity(steps/hr)"),
+                        ActivityDeviation = csv.GetField<float>("ActivityDeviation(%)"),
+                        RestBout = csv.GetField<float>("RestBout(#)"),
+                        RestPerBout = csv.GetField<float>("RestPerBout(min)"),
+                        RestRatio = csv.GetField<float>("RestRatio(%)"),
+                        RestRestlessness = csv.GetField<float>("RestRestlessness"),
+                        RestTime = csv.GetField<float>("RestTime(min)"),
+                        Weight = csv.GetField<float>("Weight(gr)")
+                    };
+                    Console.WriteLine(record.Animal_ID);
+                    records.Add(record);
+                }
+            }
+
+
+
             // Initial telemetry values
             double minTemperature = 20;
             double minHumidity = 60;
@@ -130,4 +181,34 @@ namespace SimulatedDevice
             }
         }
     }
+}
+public class SensorData
+{
+    public string datesql { get; set; }
+    public int Animal_ID { get; set; }
+    public int Group_ID { get; set; }
+    public int Lactation_Num { get; set; }
+    public int DIM { get; set; }
+    public string AnimalStatus { get; set; }
+    public string Gynecology_Status { get; set; }
+    public float Yield { get; set; } // Yield(gr)
+    public float ProdRate { get; set; } // ProdRate(gr/hr)
+    public float Fat { get; set; } // Fat(%)
+    public float Avg_Fat { get; set; } // Avg_Fat(%)
+    public float Protein { get; set; } // Protein(%)
+    public float Avg_Protein { get; set; } // Avg_Protein(%)
+    public float Lactose { get; set; } // Lactose
+    public float Avg_Lactose { get; set; } // Avg_Lactose(%)
+    public float Conductivity { get; set; } // Conductivity
+    public float Avg_Conductivity { get; set; } // Avg_Conductivity
+    public float Milking_Time { get; set; } // Milking_Time(seconds)
+    public float Avg_Milking_Time { get; set; } // Avg_Milking_Time(seconds)
+    public float Activity { get; set; } // Activity(steps/hr)
+    public float ActivityDeviation { get; set; } // ActivityDeviation(%)
+    public float RestBout { get; set; } // RestBout(#)
+    public float RestPerBout { get; set; } // RestPerBout(min)
+    public float RestRatio { get; set; } // RestRatio(%)
+    public float RestRestlessness { get; set; } // RestRestlessness
+    public float RestTime { get; set; } // RestTime(min)
+    public float Weight { get; set; } // Weight(gr)
 }
