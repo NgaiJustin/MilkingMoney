@@ -195,6 +195,8 @@ namespace SimulatedDevice
                 await s_deviceClient.SendEventAsync(message);
                 Console.WriteLine($"{DateTime.Now} > Sending message: {messageBody}");
 
+                index = index + 1;
+
                 await Task.Delay(3000);
             }
         }
