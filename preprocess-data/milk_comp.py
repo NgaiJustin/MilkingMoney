@@ -1,7 +1,4 @@
 import pandas as pd
-import datetime
-
-from sqlalchemy import false
 
 # Cornell University - Dairy Market Watch
 data = {
@@ -20,4 +17,4 @@ data = {
     pd.Period('2018-10', 'M'): [1.72],
 }
 
-pd.DataFrame(data).to_csv("milk_component_price.csv", index=false)
+pd.DataFrame(data).to_csv("milk_component_price.csv", index=False)
