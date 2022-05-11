@@ -1,0 +1,57 @@
+[
+    { "column": "datesql", "path": "&.datesql", "datatype": "DateTime" },
+    { "column": "Animal_ID", "path": "&.Animal_ID", "datatype": "int" },
+    { "column": "Group_ID", "path": "&.Group_ID", "datatype": "int" },
+    {
+        "column": "Lactation_Num",
+        "path": "&.Lactation_Num",
+        "datatype": "int"
+    },
+    { "column": "DIM", "path": "&.DIM", "datatype": "int" },
+    {
+        "column": "AnimalStatus",
+        "path": "&.AnimalStatus",
+        "datatype": "string"
+    },
+    {
+        "column": "Gynecology_Status",
+        "path": "&.Gynecology_Status",
+        "datatype": "string"
+    },
+    { "column": "Yield", "path": "&.Yield", "datatype": "real" },
+    { "column": "ProdRate", "path": "&.ProdRate", "datatype": "real" },
+    { "column": "Fat", "path": "&.Fat", "datatype": "real" },
+    { "column": "Avg_Fat", "path": "&.Avg_Fat", "datatype": "real" },
+    { "column": "Protein", "path": "&.Protein", "datatype": "real" },
+    { "column": "Avg_Protein", "path": "&.Avg_Protein", "datatype": "real" },
+    { "column": "Lactose", "path": "&.Lactose", "datatype": "real" },
+    { "column": "Avg_Lactose", "path": "&.Avg_Lactose", "datatype": "real" },
+    { "column": "Conductivity", "path": "&.Conductivity", "datatype": "real" },
+    {
+        "column": "Avg_Conductivity",
+        "path": "&.Avg_Conductivity",
+        "datatype": "real"
+    },
+    { "column": "Milking_Time", "path": "&.Milking_Time", "datatype": "real" },
+    {
+        "column": "Avg_Milking_Time",
+        "path": "&.Avg_Milking_Time",
+        "datatype": "real"
+    },
+    { "column": "Activity", "path": "&.Activity", "datatype": "real" },
+    {
+        "column": "ActivityDeviation",
+        "path": "&.ActivityDeviation",
+        "datatype": "real"
+    },
+    { "column": "RestBout", "path": "&.RestBout", "datatype": "real" },
+    { "column": "RestPerBout", "path": "&.RestPerBout", "datatype": "real" },
+    { "column": "RestRatio", "path": "&.RestRatio", "datatype": "real" },
+    {
+        "column": "RestRestlessness",
+        "path": "&.RestRestlessness",
+        "datatype": "real"
+    },
+    { "column": "RestTime", "path": "&.RestTime", "datatype": "real" },
+    { "column": "Weight", "path": "&.Weight", "datatype": "real" }
+]
