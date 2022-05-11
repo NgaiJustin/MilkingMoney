@@ -100,11 +100,12 @@ namespace SimulatedDevice
         // Async method to send simulated telemetry
         private static async Task SendDeviceToCloudMessagesAsync(CancellationToken ct)
         {
+            var records = new List<SensorData>();
+
             // Load CSV files
             using (var reader = new StreamReader("./data/farm1.csv"))
             using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
             {
-                var records = new List<SensorData>();
                 csv.Read();
                 csv.ReadHeader();
                 while (csv.Read())
@@ -139,29 +140,46 @@ namespace SimulatedDevice
                         RestTime = csv.GetField<float>("RestTime(min)"),
                         Weight = csv.GetField<float>("Weight(gr)")
                     };
-                    Console.WriteLine(record.Animal_ID);
+                    // Console.WriteLine(record.Animal_ID);
                     records.Add(record);
                 }
             }
+            Console.WriteLine($"{DateTime.Now} > Loaded Simulator Data");
 
-
-
-            // Initial telemetry values
-            double minTemperature = 20;
-            double minHumidity = 60;
-            var rand = new Random();
-
+            var index = 0;
             while (!ct.IsCancellationRequested)
             {
-                double currentTemperature = minTemperature + rand.NextDouble() * 15;
-                double currentHumidity = minHumidity + rand.NextDouble() * 20;
-
                 // Create JSON message
                 string messageBody = JsonSerializer.Serialize(
                     new
                     {
-                        temperature = currentTemperature,
-                        humidity = currentHumidity,
+                        datesql = records[index].datesql,
+                        Animal_ID = records[index].Animal_ID,
+                        Group_ID = records[index].Group_ID,
+                        Lactation_Num = records[index].Lactation_Num,
+                        DIM = records[index].DIM,
+                        AnimalStatus = records[index].AnimalStatus,
+                        Gynecology_Status = records[index].Gynecology_Status,
+                        Yield = records[index].Yield,
+                        ProdRate = records[index].ProdRate,
+                        Fat = records[index].Fat,
+                        Avg_Fat = records[index].Avg_Fat,
+                        Protein = records[index].Protein,
+                        Avg_Protein = records[index].Avg_Protein,
+                        Lactose = records[index].Lactose,
+                        Avg_Lactose = records[index].Avg_Lactose,
+                        Conductivity = records[index].Conductivity,
+                        Avg_Conductivity = records[index].Avg_Conductivity,
+                        Milking_Time = records[index].Milking_Time,
+                        Avg_Milking_Time = records[index].Avg_Milking_Time,
+                        Activity = records[index].Activity,
+                        ActivityDeviation = records[index].ActivityDeviation,
+                        RestBout = records[index].RestBout,
+                        RestPerBout = records[index].RestPerBout,
+                        RestRatio = records[index].RestRatio,
+                        RestRestlessness = records[index].RestRestlessness,
+                        RestTime = records[index].RestTime,
+                        Weight = records[index].Weight,
                     });
                 using var message = new Message(Encoding.ASCII.GetBytes(messageBody))
                 {
@@ -171,13 +189,13 @@ namespace SimulatedDevice
 
                 // Add a custom application property to the message.
                 // An IoT hub can filter on these properties without access to the message body.
-                message.Properties.Add("temperatureAlert", (currentTemperature > 30) ? "true" : "false");
+                // message.Properties.Add("temperatureAlert", (currentTemperature > 30) ? "true" : "false");
 
                 // Send the telemetry message
                 await s_deviceClient.SendEventAsync(message);
                 Console.WriteLine($"{DateTime.Now} > Sending message: {messageBody}");
 
-                await Task.Delay(1000);
+                await Task.Delay(3000);
             }
         }
     }
