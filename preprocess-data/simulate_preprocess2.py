@@ -11,5 +11,6 @@ grouped = df.groupby(["Group_ID"])
 
 for groupID in groupIDs:
     group_df = grouped.get_group(groupID)
+    group_df = group_df.fillna(0)
     out_path = os.path.join(out_dir, "farm" + str(groupID) + ".csv")
     group_df.to_csv(out_path)
