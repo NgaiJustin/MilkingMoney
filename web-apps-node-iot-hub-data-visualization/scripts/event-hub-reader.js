@@ -13,7 +13,7 @@ class EventHubReader {
 
   async startReadMessage(startReadMessageCallback) {
     try {
-      const eventHubConnectionString = await convertIotHubToEventHubsConnectionString(this.iotHubConnectionString);
+      const eventHubConnectionString = this.iotHubConnectionString;
       const consumerClient = new EventHubConsumerClient(this.consumerGroup, eventHubConnectionString);
       console.log('Successfully created the EventHubConsumerClient from IoT Hub event hub-compatible connection string.');
 
@@ -26,7 +26,9 @@ class EventHubReader {
             startReadMessageCallback(
               events[i].body,
               events[i].enqueuedTimeUtc,
-              events[i].systemProperties["iothub-connection-device-id"]);
+              // console.log(events[i])
+              // events[i].systemProperties
+              );
           }
         },
         processError: (err, context) => {

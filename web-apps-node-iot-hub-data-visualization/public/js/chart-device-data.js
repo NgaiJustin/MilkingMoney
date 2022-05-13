@@ -18,9 +18,9 @@ $(document).ready(() => {
             // this.humidityData = new Array(this.maxLen);
         }
 
-        addData(time, Avg_Protein) {
+        addData(time, monetary_value) {
             this.timeData.push(time);
-            this.displayedData.push(Avg_Protein);
+            this.displayedData.push(monetary_value);
             // this.humidityData.push(humidity || null);
 
             if (this.timeData.length > this.maxLen) {
@@ -141,28 +141,31 @@ $(document).ready(() => {
     webSocket.onmessage = function onMessage(message) {
         try {
             const messageData = JSON.parse(message.data);
-            console.log(messageData);
 
             // time and monetary value are required
             // TODO: Change to Monetary Value
-            if (!messageData.MessageDate || !messageData.IotData.Avg_Protein) {
+            if (
+                !messageData.MessageDate ||
+                !messageData.IotData.monetary_value
+            ) {
                 return;
             }
+            console.log("DEBUG: ", messageData);
 
             // find or add device to list of tracked devices
             const existingDeviceData = trackedDevices.findDevice(
-                process_name(messageData.DeviceId)
+                process_name(messageData.IotData.Group_ID)
             );
 
             if (existingDeviceData) {
                 existingDeviceData.addData(
                     messageData.MessageDate,
-                    messageData.IotData.Avg_Protein
+                    messageData.IotData.monetary_value
                     // messageData.IotData.humidity
                 );
             } else {
                 const newDeviceData = new DeviceData(
-                    process_name(messageData.DeviceId)
+                    process_name(messageData.IotData.Group_ID)
                 );
                 trackedDevices.devices.push(newDeviceData);
                 const numDevices = trackedDevices.getDevicesCount();
@@ -172,14 +175,14 @@ $(document).ready(() => {
                         : `${numDevices} devices`;
                 newDeviceData.addData(
                     messageData.MessageDate,
-                    messageData.IotData.Avg_Protein
+                    messageData.IotData.monetary_value
                     // messageData.IotData.humidity
                 );
 
                 // add device to the UI list
                 const node = document.createElement("option");
                 const nodeText = document.createTextNode(
-                    process_name(messageData.DeviceId)
+                    process_name(messageData.IotData.Group_ID)
                 );
                 node.appendChild(nodeText);
                 listOfDevices.appendChild(node);
@@ -200,9 +203,5 @@ $(document).ready(() => {
 });
 
 process_name = (deviceStr) => {
-    old_sensor_name = "simulated-sensor";
-    if (deviceStr.includes(old_sensor_name)) {
-        len = old_sensor_name.length;
-        return "farm-edge" + deviceStr.slice(len);
-    }
+    return "farm-edge" + deviceStr.toString();
 };

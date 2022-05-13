@@ -56,12 +56,12 @@ const eventHubReader = new EventHubReader(
 );
 
 (async () => {
-    await eventHubReader.startReadMessage((message, date, deviceId) => {
+    await eventHubReader.startReadMessage((message, date) => {
         try {
             const payload = {
                 IotData: message,
                 MessageDate: date || Date.now().toISOString(),
-                DeviceId: deviceId,
+                // DeviceId: deviceId,
             };
 
             wss.broadcast(JSON.stringify(payload));
