@@ -26,7 +26,7 @@ namespace SimulatedDevice
     internal class Program
     {
         private static int num_instances;
-        private static DeviceClient s_deviceClient;
+        // private static DeviceClient s_deviceClient;
         private static DeviceClient[] s_deviceClients;
         private static readonly TransportType s_transportType = TransportType.Mqtt;
 
@@ -89,10 +89,14 @@ namespace SimulatedDevice
             // Hence, if you want to pass a cancellation token to any subsequent calls, a new token needs to be generated.
             // For device client APIs, you can also call them without a cancellation token, which will set a default
             // cancellation timeout of 4 minutes: https://github.com/Azure/azure-iot-sdk-csharp/blob/64f6e9f24371bc40ab3ec7a8b8accbfb537f0fe1/iothub/device/src/InternalClient.cs#L1922
-            await s_deviceClient.CloseAsync();
-
-            s_deviceClient.Dispose();
-            Console.WriteLine("Device simulator finished.");
+            for (int device_id = 0; device_id < num_instances; device_id++)
+            {
+                await s_deviceClients[device_id].CloseAsync();
+                s_deviceClients[device_id].Dispose();
+                Console.WriteLine($"Ending connection to farm {device_id}");
+            }
+            Console.WriteLine("All connections closed.");
+            Console.WriteLine("Simulation finished.");
         }
 
         private static void ValidateConnectionString(string[] args)
