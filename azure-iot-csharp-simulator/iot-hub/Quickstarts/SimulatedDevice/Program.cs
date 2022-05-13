@@ -25,13 +25,33 @@ namespace SimulatedDevice
     /// </summary>
     internal class Program
     {
+        private static int num_instances;
         private static DeviceClient s_deviceClient;
+        private static DeviceClient[] s_deviceClients;
         private static readonly TransportType s_transportType = TransportType.Mqtt;
 
         // The device connection string to authenticate the device with your IoT hub.
         // Using the Azure CLI:
         // az iot hub device-identity show-connection-string --hub-name {YourIoTHubName} --device-id MyDotnetDevice --output table
-        private static string s_connectionString = "{Your device connection string here}";
+        // private static string s_connectionString = "{Your device connection string here}";
+
+        private static string s_connectionString = "";
+        private static string s_connectionString2 = "";
+        private static string s_connectionString3 = "";
+        private static string s_connectionString4 = "";
+        private static string s_connectionString5 = "";
+        private static string s_connectionString6 = "";
+        private static string s_connectionString7 = "";
+        private static string s_connectionString8 = "";
+        private static string s_connectionString9 = "";
+        private static string s_connectionString10 = "";
+        private static string s_connectionString11 = "";
+        private static string s_connectionString12 = "";
+        private static string s_connectionString13 = "";
+        private static string s_connectionString14 = "";
+        private static string s_connectionString15 = "";
+
+        private static string[] s_connectionStrings = { s_connectionString, s_connectionString2, s_connectionString3, s_connectionString4, s_connectionString5, s_connectionString6, s_connectionString7, s_connectionString8, s_connectionString9, s_connectionString10, s_connectionString11, s_connectionString12, s_connectionString13, s_connectionString14, s_connectionString15 };
 
         private static async Task Main(string[] args)
         {
@@ -40,8 +60,15 @@ namespace SimulatedDevice
             // This sample accepts the device connection string as a parameter, if present
             ValidateConnectionString(args);
 
-            // Connect to the IoT hub using the MQTT protocol
-            s_deviceClient = DeviceClient.CreateFromConnectionString(s_connectionString, s_transportType);
+            s_deviceClients = new DeviceClient[num_instances];
+            for (int i = 0; i < num_instances; i++)
+            {
+                Console.WriteLine($"Spawing instance {i}");
+                // Connect to the IoT hub using the MQTT protocol
+                s_deviceClients[i] = (DeviceClient.CreateFromConnectionString(s_connectionStrings[i], s_transportType));
+            }
+
+            // s_deviceClient = DeviceClient.CreateFromConnectionString(s_connectionString, s_transportType);
 
             // Set up a condition to quit the sample
             Console.WriteLine("Press control-C to exit.");
@@ -72,10 +99,17 @@ namespace SimulatedDevice
         {
             if (args.Any())
             {
+                // Args take in an integer that specify the number of IoT Edge Instances to Simulate
                 try
                 {
-                    var cs = IotHubConnectionStringBuilder.Create(args[0]);
-                    s_connectionString = cs.ToString();
+                    num_instances = int.Parse(args[0]);
+                    Console.WriteLine($"Spawning {num_instances} instances");
+                    for (int i = 0; i < num_instances; i++)
+                    {
+                        Console.WriteLine($"Connecting {i}");
+                        // Connect to the IoT hub using the MQTT protocol
+                        _ = IotHubConnectionStringBuilder.Create(s_connectionStrings[i]);
+                    }
                 }
                 catch (Exception)
                 {
@@ -85,6 +119,7 @@ namespace SimulatedDevice
             }
             else
             {
+                // Otherwise, default number of clients is 1.
                 try
                 {
                     _ = IotHubConnectionStringBuilder.Create(s_connectionString);
@@ -100,103 +135,132 @@ namespace SimulatedDevice
         // Async method to send simulated telemetry
         private static async Task SendDeviceToCloudMessagesAsync(CancellationToken ct)
         {
-            var records = new List<SensorData>();
-
-            // Load CSV files
-            using (var reader = new StreamReader("./data/farm1.csv"))
-            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+            List<SensorData>[] records = new List<SensorData>[15];
+            var dataFiles = new List<string>
             {
-                csv.Read();
-                csv.ReadHeader();
-                while (csv.Read())
+                "./data/farm1.csv",
+                "./data/farm2.csv",
+                "./data/farm3.csv",
+                "./data/farm4.csv",
+                "./data/farm5.csv",
+                "./data/farm6.csv",
+                "./data/farm8.csv",
+                "./data/farm10.csv",
+                "./data/farm11.csv",
+                "./data/farm12.csv",
+                "./data/farm14.csv",
+                "./data/farm22.csv",
+                "./data/farm23.csv",
+                "./data/farm97.csv",
+                "./data/farm1.csv"
+            };
+
+            for (int fileNum = 0; fileNum < num_instances; fileNum++)
+            {
+                // Load CSV files
+                using (var reader = new StreamReader(dataFiles[fileNum]))
+                using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
                 {
-                    var record = new SensorData
+                    csv.Read();
+                    csv.ReadHeader();
+                    while (csv.Read())
                     {
-                        datesql = csv.GetField("datesql"),
-                        Animal_ID = csv.GetField<int>("Animal_ID"),
-                        Group_ID = csv.GetField<int>("Group_ID"),
-                        Lactation_Num = csv.GetField<int>("Lactation_Num"),
-                        DIM = csv.GetField<int>("DIM"),
-                        AnimalStatus = csv.GetField<string>("AnimalStatus"),
-                        Gynecology_Status = csv.GetField<string>("Gynecology_Status"),
-                        Yield = csv.GetField<float>("Yield(gr)"),
-                        ProdRate = csv.GetField<float>("ProdRate(gr/hr)"),
-                        Fat = csv.GetField<float>("Fat(%)"),
-                        Avg_Fat = csv.GetField<float>("Avg_Fat(%)"),
-                        Protein = csv.GetField<float>("Protein(%)"),
-                        Avg_Protein = csv.GetField<float>("Avg_Protein(%)"),
-                        Lactose = csv.GetField<float>("Lactose"),
-                        Avg_Lactose = csv.GetField<float>("Avg_Lactose(%)"),
-                        Conductivity = csv.GetField<float>("Conductivity"),
-                        Avg_Conductivity = csv.GetField<float>("Avg_Conductivity"),
-                        Milking_Time = csv.GetField<float>("Milking_Time(seconds)"),
-                        Avg_Milking_Time = csv.GetField<float>("Avg_Milking_Time(seconds)"),
-                        Activity = csv.GetField<float>("Activity(steps/hr)"),
-                        ActivityDeviation = csv.GetField<float>("ActivityDeviation(%)"),
-                        RestBout = csv.GetField<float>("RestBout(#)"),
-                        RestPerBout = csv.GetField<float>("RestPerBout(min)"),
-                        RestRatio = csv.GetField<float>("RestRatio(%)"),
-                        RestRestlessness = csv.GetField<float>("RestRestlessness"),
-                        RestTime = csv.GetField<float>("RestTime(min)"),
-                        Weight = csv.GetField<float>("Weight(gr)")
-                    };
-                    // Console.WriteLine(record.Animal_ID);
-                    records.Add(record);
+                        var record = new SensorData
+                        {
+                            datesql = DateTime.ParseExact(csv.GetField("datesql"), "yyyy-MM-dd", CultureInfo.CurrentCulture),
+                            Animal_ID = csv.GetField<int>("Animal_ID"),
+                            Group_ID = csv.GetField<int>("Group_ID"),
+                            Lactation_Num = csv.GetField<int>("Lactation_Num"),
+                            DIM = csv.GetField<int>("DIM"),
+                            AnimalStatus = csv.GetField<string>("AnimalStatus"),
+                            Gynecology_Status = csv.GetField<string>("Gynecology_Status"),
+                            Yield = csv.GetField<float>("Yield(gr)"),
+                            ProdRate = csv.GetField<float>("ProdRate(gr/hr)"),
+                            Fat = csv.GetField<float>("Fat(%)"),
+                            Avg_Fat = csv.GetField<float>("Avg_Fat(%)"),
+                            Protein = csv.GetField<float>("Protein(%)"),
+                            Avg_Protein = csv.GetField<float>("Avg_Protein(%)"),
+                            Lactose = csv.GetField<float>("Lactose"),
+                            Avg_Lactose = csv.GetField<float>("Avg_Lactose(%)"),
+                            Conductivity = csv.GetField<float>("Conductivity"),
+                            Avg_Conductivity = csv.GetField<float>("Avg_Conductivity"),
+                            Milking_Time = csv.GetField<float>("Milking_Time(seconds)"),
+                            Avg_Milking_Time = csv.GetField<float>("Avg_Milking_Time(seconds)"),
+                            Activity = csv.GetField<float>("Activity(steps/hr)"),
+                            ActivityDeviation = csv.GetField<float>("ActivityDeviation(%)"),
+                            RestBout = csv.GetField<float>("RestBout(#)"),
+                            RestPerBout = csv.GetField<float>("RestPerBout(min)"),
+                            RestRatio = csv.GetField<float>("RestRatio(%)"),
+                            RestRestlessness = csv.GetField<float>("RestRestlessness"),
+                            RestTime = csv.GetField<float>("RestTime(min)"),
+                            Weight = csv.GetField<float>("Weight(gr)")
+                        };
+                        // Console.WriteLine(record.Animal_ID);
+                        if (records[fileNum] == null)
+                        {
+                            records[fileNum] = new List<SensorData>();
+                        }
+                        records[fileNum].Add(record);
+                    }
                 }
+                Console.WriteLine($"{DateTime.Now} > Loaded Data for Farm {fileNum}");
             }
-            Console.WriteLine($"{DateTime.Now} > Loaded Simulator Data");
 
             var index = 0;
             while (!ct.IsCancellationRequested)
             {
-                // Create JSON message
-                string messageBody = JsonSerializer.Serialize(
-                    new
-                    {
-                        datesql = records[index].datesql,
-                        Animal_ID = records[index].Animal_ID,
-                        Group_ID = records[index].Group_ID,
-                        Lactation_Num = records[index].Lactation_Num,
-                        DIM = records[index].DIM,
-                        AnimalStatus = records[index].AnimalStatus,
-                        Gynecology_Status = records[index].Gynecology_Status,
-                        Yield = records[index].Yield,
-                        ProdRate = records[index].ProdRate,
-                        Fat = records[index].Fat,
-                        Avg_Fat = records[index].Avg_Fat,
-                        Protein = records[index].Protein,
-                        Avg_Protein = records[index].Avg_Protein,
-                        Lactose = records[index].Lactose,
-                        Avg_Lactose = records[index].Avg_Lactose,
-                        Conductivity = records[index].Conductivity,
-                        Avg_Conductivity = records[index].Avg_Conductivity,
-                        Milking_Time = records[index].Milking_Time,
-                        Avg_Milking_Time = records[index].Avg_Milking_Time,
-                        Activity = records[index].Activity,
-                        ActivityDeviation = records[index].ActivityDeviation,
-                        RestBout = records[index].RestBout,
-                        RestPerBout = records[index].RestPerBout,
-                        RestRatio = records[index].RestRatio,
-                        RestRestlessness = records[index].RestRestlessness,
-                        RestTime = records[index].RestTime,
-                        Weight = records[index].Weight,
-                    });
-                using var message = new Message(Encoding.ASCII.GetBytes(messageBody))
+                // Process each client
+                for (int i = 0; i < num_instances; i++)
                 {
-                    ContentType = "application/json",
-                    ContentEncoding = "utf-8",
-                };
+                    // Create JSON message
+                    string messageBody = JsonSerializer.Serialize(
+                        new
+                        {
+                            datesql = records[i][index].datesql,
+                            Animal_ID = records[i][index].Animal_ID,
+                            Group_ID = records[i][index].Group_ID,
+                            Lactation_Num = records[i][index].Lactation_Num,
+                            DIM = records[i][index].DIM,
+                            AnimalStatus = records[i][index].AnimalStatus,
+                            Gynecology_Status = records[i][index].Gynecology_Status,
+                            Yield = records[i][index].Yield,
+                            ProdRate = records[i][index].ProdRate,
+                            Fat = records[i][index].Fat,
+                            Avg_Fat = records[i][index].Avg_Fat,
+                            Protein = records[i][index].Protein,
+                            Avg_Protein = records[i][index].Avg_Protein,
+                            Lactose = records[i][index].Lactose,
+                            Avg_Lactose = records[i][index].Avg_Lactose,
+                            Conductivity = records[i][index].Conductivity,
+                            Avg_Conductivity = records[i][index].Avg_Conductivity,
+                            Milking_Time = records[i][index].Milking_Time,
+                            Avg_Milking_Time = records[i][index].Avg_Milking_Time,
+                            Activity = records[i][index].Activity,
+                            ActivityDeviation = records[i][index].ActivityDeviation,
+                            RestBout = records[i][index].RestBout,
+                            RestPerBout = records[i][index].RestPerBout,
+                            RestRatio = records[i][index].RestRatio,
+                            RestRestlessness = records[i][index].RestRestlessness,
+                            RestTime = records[i][index].RestTime,
+                            Weight = records[i][index].Weight,
+                        });
+                    using var message = new Message(Encoding.ASCII.GetBytes(messageBody))
+                    {
+                        ContentType = "application/json",
+                        ContentEncoding = "utf-8",
+                    };
 
-                // Add a custom application property to the message.
-                // An IoT hub can filter on these properties without access to the message body.
-                // message.Properties.Add("temperatureAlert", (currentTemperature > 30) ? "true" : "false");
+                    // Add a custom application property to the message.
+                    // An IoT hub can filter on these properties without access to the message body.
+                    // message.Properties.Add("temperatureAlert", (currentTemperature > 30) ? "true" : "false");
 
-                // Send the telemetry message
-                await s_deviceClient.SendEventAsync(message);
-                Console.WriteLine($"{DateTime.Now} > Sending message: {messageBody}");
+                    // Send the telemetry message
+                    await s_deviceClients[i].SendEventAsync(message);
+                    Console.WriteLine($"Farm {i}: {DateTime.Now} > Sending message: {messageBody}");
+                }
+                Console.WriteLine($"");
 
                 index = index + 1;
-
                 await Task.Delay(3000);
             }
         }
@@ -204,7 +268,7 @@ namespace SimulatedDevice
 }
 public class SensorData
 {
-    public string datesql { get; set; }
+    public DateTime datesql { get; set; }
     public int Animal_ID { get; set; }
     public int Group_ID { get; set; }
     public int Lactation_Num { get; set; }
