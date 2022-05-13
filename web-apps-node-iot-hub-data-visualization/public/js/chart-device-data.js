@@ -60,8 +60,8 @@ $(document).ready(() => {
         datasets: [
             {
                 fill: false,
-                label: "Temperature",
-                yAxisID: "Temperature",
+                label: "Farm Value ($USD)",
+                yAxisID: "Farm Value ($USD)",
                 borderColor: "rgba(255, 204, 0, 1)",
                 pointBoarderColor: "rgba(255, 204, 0, 1)",
                 backgroundColor: "rgba(255, 204, 0, 0.4)",
@@ -87,10 +87,10 @@ $(document).ready(() => {
         scales: {
             yAxes: [
                 {
-                    id: "Temperature",
+                    id: "Farm Value ($USD)",
                     type: "linear",
                     scaleLabel: {
-                        labelString: "Temperature (ºC)",
+                        labelString: "Farm Value ($USD)",
                         display: true,
                     },
                     position: "left",
@@ -144,13 +144,14 @@ $(document).ready(() => {
             console.log(messageData);
 
             // time and monetary value are required
+            // TODO: Change to Monetary Value
             if (!messageData.MessageDate || !messageData.IotData.Avg_Protein) {
                 return;
             }
 
             // find or add device to list of tracked devices
             const existingDeviceData = trackedDevices.findDevice(
-                messageData.DeviceId
+                process_name(messageData.DeviceId)
             );
 
             if (existingDeviceData) {
@@ -160,7 +161,9 @@ $(document).ready(() => {
                     // messageData.IotData.humidity
                 );
             } else {
-                const newDeviceData = new DeviceData(messageData.DeviceId);
+                const newDeviceData = new DeviceData(
+                    process_name(messageData.DeviceId)
+                );
                 trackedDevices.devices.push(newDeviceData);
                 const numDevices = trackedDevices.getDevicesCount();
                 deviceCount.innerText =
@@ -175,7 +178,9 @@ $(document).ready(() => {
 
                 // add device to the UI list
                 const node = document.createElement("option");
-                const nodeText = document.createTextNode(messageData.DeviceId);
+                const nodeText = document.createTextNode(
+                    process_name(messageData.DeviceId)
+                );
                 node.appendChild(nodeText);
                 listOfDevices.appendChild(node);
 
@@ -193,3 +198,11 @@ $(document).ready(() => {
         }
     };
 });
+
+process_name = (deviceStr) => {
+    old_sensor_name = "simulated-sensor";
+    if (deviceStr.includes(old_sensor_name)) {
+        len = old_sensor_name.length;
+        return "farm-edge" + deviceStr.slice(len);
+    }
+};
