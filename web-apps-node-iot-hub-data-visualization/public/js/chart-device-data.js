@@ -141,16 +141,16 @@ $(document).ready(() => {
     webSocket.onmessage = function onMessage(message) {
         try {
             const messageData = JSON.parse(message.data);
+            console.log(messageData);
 
             // time and monetary value are required
             // TODO: Change to Monetary Value
             if (
                 !messageData.MessageDate ||
-                !messageData.IotData.monetary_value
+                !("monetary_value" in messageData.IotData)
             ) {
                 return;
             }
-            console.log("DEBUG: ", messageData);
 
             // find or add device to list of tracked devices
             const existingDeviceData = trackedDevices.findDevice(

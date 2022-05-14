@@ -26,12 +26,11 @@ class EventHubReader {
             startReadMessageCallback(
               events[i].body,
               events[i].enqueuedTimeUtc,
-              // console.log(events[i])
               // events[i].systemProperties
               );
           }
         },
-        processError: (err, context) => {
+        processError:  (err, context) => {
           console.error(err.message || err);
         }
       });
