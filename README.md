@@ -14,4 +14,6 @@ With the Azure IoT hub, the system can easily scale when new cows and thus senso
 Finally, the system is self-sufficient since the model will retrain based on collected data; little maintenance is required. The exact architecture is discussed below.
 
 ### Project Demo
-[![Demo](http://img.youtube.com/vi/l0kV47VgsDQ/0.jpg)](http://www.youtube.com/watch?v=l0kV47VgsDQ "CS 5412 Final Project Presentation")
+* Add Arch Spec here
+
+[Link: http://www.youtube.com/watch?v=l0kV47VgsDQ]
